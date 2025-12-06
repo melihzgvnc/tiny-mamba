@@ -28,7 +28,7 @@ class MambaBlock(nn.Module):
         x_gate = self.in_proj_gate(x)
         xz = xz.transpose(1, 2)                     # Conv expects (batch, d_inner, seq_len)
         x_conv = self.conv1d(xz)
-        x_conv = x_conv[:, :, :seq_len]        # Trim the padding conv added
+        x_conv = x_conv[:, :, :seq_len]             # Trim the padding conv added
         x_conv = x_conv.transpose(1, 2)
         activated_conv_output = F.silu(x_conv)
         ssm_out = self.ssm(activated_conv_output)
