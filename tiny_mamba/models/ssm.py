@@ -7,8 +7,10 @@ class SelectiveSSM(nn.Module):
         # A Parameter
         # delta, B, C projection layers
         super().__init__()
+        
         self.d_state = d_state
-        self.A = nn.Parameter(torch.randn(d_model, d_state))
+        # self.A = nn.Parameter(torch.randn(d_model, d_state))
+        self.A = nn.Parameter(-torch.abs(torch.randn(d_model, d_state)))
 
         self.delta_proj = nn.Linear(d_model, d_model)        
         self.B_proj = nn.Linear(d_model, d_state)
@@ -22,10 +24,12 @@ class SelectiveSSM(nn.Module):
 
         return A_bar, B_bar
 
+
     def selective_scan(self, x, delta, B, C):
         # The recurrence loop
         A_bar, B_bar = self.discretize(delta, B)
-
+        
+        # Sequential fallback
         batch = x.shape[0]
         d_model = x.shape[2]
         h = torch.zeros(batch, d_model, self.d_state, device=x.device)
@@ -37,6 +41,7 @@ class SelectiveSSM(nn.Module):
             outputs.append(y)
 
         return torch.stack(outputs, dim=1) 
+
 
     def forward(self, x):
         # Tie it all together
